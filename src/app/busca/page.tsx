@@ -24,7 +24,6 @@ export default async function BuscaPage({ searchParams }: SearchPageProps) {
 
   return (
     <main className="min-h-screen bg-stone-50 text-slate-900 font-sans pb-16">
-      {/* HEADER DA BUSCA */}
       <header className="bg-white border-b border-stone-200 py-4 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
           <Link href="/" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-[#3A4D28]">
@@ -48,7 +47,6 @@ export default async function BuscaPage({ searchParams }: SearchPageProps) {
         </div>
       </header>
 
-      {/* RESULTADOS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 mb-2">
           Resultados para: &ldquo;{query}&rdquo;
@@ -58,14 +56,13 @@ export default async function BuscaPage({ searchParams }: SearchPageProps) {
         {produtos.length === 0 ? (
           <div className="bg-white p-12 rounded-2xl border border-stone-200 text-center">
             <p className="text-slate-600 font-medium mb-2">Nenhum produto encontrado com esse termo.</p>
-            <p className="text-xs text-slate-400 mb-6">Tente buscar por termos como &quot;Café&quot;, &quot;Hortifrúti&quot; ou &quot;Queijo&quot;.</p>
             <Link href="/" className="inline-block bg-[#3A4D28] text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-emerald-900">
               Ver Todos os Produtos
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {produtos.map((p) => {
+            {produtos.map((p: any) => {
               const whatsappMessage = encodeURIComponent(`Olá! Gostaria de encomendar o produto: ${p.nome} por R$ ${p.preco.toFixed(2)}.`);
               return (
                 <div key={p.id} className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">

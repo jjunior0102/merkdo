@@ -21,7 +21,6 @@ export default async function Home({ searchParams }: HomeProps) {
 
   return (
     <main className="min-h-screen bg-stone-50 text-slate-900 font-sans">
-      {/* HEADER SIMPLES */}
       <header className="w-full py-4 px-4 sm:px-8 flex justify-between items-center max-w-7xl mx-auto">
         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#3A4D28]">Merkdo.</h1>
         <Link 
@@ -32,7 +31,6 @@ export default async function Home({ searchParams }: HomeProps) {
         </Link>
       </header>
 
-      {/* HERO SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 py-12 sm:py-20 flex flex-col items-center text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full bg-emerald-100 text-[#3A4D28] text-xs sm:text-sm font-medium border border-emerald-200">
           <span className="relative flex h-2 w-2">
@@ -50,7 +48,6 @@ export default async function Home({ searchParams }: HomeProps) {
           Artesanal, selecionado e pertinho de você. Explore nossas prateleiras digitais e receba no conforto de casa.
         </p>
 
-        {/* BARRA DE PESQUISA RÁPIDA (URL SearchParams) */}
         <form action="/busca" method="GET" className="w-full max-w-lg flex gap-2 mb-10">
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
@@ -66,7 +63,6 @@ export default async function Home({ searchParams }: HomeProps) {
           </button>
         </form>
 
-        {/* FEATURES BADGES */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-stone-200 pt-8 w-full max-w-xl">
           <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-slate-700">
             <Clock className="w-4 h-4 text-[#D96B43]" />
@@ -79,7 +75,6 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
       </section>
 
-      {/* CATÁLOGO / FOLHETO DIGITAL */}
       <section id="catalogo" className="max-w-7xl mx-auto px-4 sm:px-8 py-12 border-t border-stone-200">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
@@ -87,7 +82,6 @@ export default async function Home({ searchParams }: HomeProps) {
             <p className="text-xs sm:text-sm text-slate-600">Escolha uma categoria abaixo ou navegue por nossas ofertas.</p>
           </div>
 
-          {/* FILTROS POR CATEGORIA */}
           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
             <Link
               href="/"
@@ -97,7 +91,7 @@ export default async function Home({ searchParams }: HomeProps) {
             >
               Todos
             </Link>
-            {categorias.map((cat) => (
+            {categorias.map((cat: string) => (
               <Link
                 key={cat}
                 href={`/?categoria=${encodeURIComponent(cat)}`}
@@ -111,7 +105,6 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
         </div>
 
-        {/* GRID DE PRODUTOS */}
         {produtos.length === 0 ? (
           <div className="bg-white p-12 rounded-2xl border border-stone-200 text-center">
             <p className="text-slate-600 font-medium mb-2">Nenhum produto cadastrado nesta categoria ainda.</p>
@@ -119,7 +112,7 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {produtos.map((p) => {
+            {produtos.map((p: any) => {
               const whatsappMessage = encodeURIComponent(`Olá! Gostaria de encomendar o produto: ${p.nome} por R$ ${p.preco.toFixed(2)}.`);
               return (
                 <div 
@@ -166,7 +159,6 @@ export default async function Home({ searchParams }: HomeProps) {
         )}
       </section>
 
-      {/* BOTÃO WHATSAPP FLUTUANTE */}
       <a 
         href="https://wa.me/5527999999999?text=Olá!%20Gostaria%20de%20fazer%20um%20pedido%20no%20Merkdo." 
         target="_blank" 
