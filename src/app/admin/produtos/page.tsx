@@ -18,7 +18,6 @@ export default async function ProdutosPage() {
 
   return (
     <main className="min-h-screen bg-stone-50 text-slate-900 font-sans pb-16">
-      {/* HEADER */}
       <header className="bg-white border-b border-stone-200 py-4 px-8 mb-8">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-[#3A4D28]">
@@ -29,7 +28,6 @@ export default async function ProdutosPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* FORMULÁRIO DE CADASTRO */}
         <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm h-fit">
           <h2 className="text-lg font-serif font-bold mb-4 flex items-center gap-2 text-[#3A4D28]">
             <Plus className="w-5 h-5 text-[#D96B43]" /> Novo Produto
@@ -60,7 +58,7 @@ export default async function ProdutosPage() {
                 className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28] bg-white"
               >
                 <option value="">Selecione uma categoria...</option>
-                {categorias.map((cat) => (
+                {categorias.map((cat: string) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
@@ -87,7 +85,7 @@ export default async function ProdutosPage() {
                   className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28] bg-white"
                 >
                   <option value="">Fornecedor...</option>
-                  {fornecedores.map((f) => (
+                  {fornecedores.map((f: any) => (
                     <option key={f.id} value={f.id}>{f.empresa}</option>
                   ))}
                 </select>
@@ -139,29 +137,23 @@ export default async function ProdutosPage() {
           </form>
         </div>
 
-        {/* LISTAGEM DE PRODUTOS */}
         <div className="lg:col-span-2 space-y-4">
           <h2 className="text-lg font-serif font-bold text-slate-900">Catálogo de Produtos ({produtos.length})</h2>
 
           {produtos.length === 0 ? (
             <div className="bg-white p-8 rounded-2xl border border-stone-200 text-center text-slate-500">
-              Nenhum produto cadastrado ainda. Certifique-se de cadastrar um fornecedor antes de adicionar produtos.
+              Nenhum produto cadastrado ainda.
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {produtos.map((p) => {
+              {produtos.map((p: any) => {
                 const emAlertaEstoque = p.estoqueAtual <= p.estoqueMinimo;
 
                 return (
                   <div key={p.id} className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden flex flex-col justify-between">
                     <div>
                       <div className="relative h-40 w-full bg-stone-100">
-                        <Image
-                          src={p.imagemUrl}
-                          alt={p.nome}
-                          fill
-                          className="object-cover"
-                        />
+                        <Image src={p.imagemUrl} alt={p.nome} fill className="object-cover" />
                         <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#3A4D28] text-xs font-medium px-2.5 py-1 rounded-full">
                           {p.categoria}
                         </span>
