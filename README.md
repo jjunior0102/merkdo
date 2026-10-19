@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Merkdo - Mercadinho de Bairro 🛒
 
-## Getting Started
+Sistema web full-stack desenvolvido para a disciplina de Programação Avançada do **IFES (Instituto Federal do Espírito Santo - Campus Alegre)**. O **Merkdo** atende ao Nicho 12 (Mercadinho de Bairro), oferecendo catálogo de produtos, controle de estoque mínimo, gestão de fornecedores e integração com WhatsApp.
 
-First, run the development server:
+## 👥 Integrantes da Dupla
+- **José Junior** (Dono do Repositório GitHub e Deploy na Vercel)
+- **Jonas Neto** (Desenvolvedor Colaborador)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔗 Links do Projeto
+- **Repositório GitHub:** [https://github.com/jjunior0102/merkdo](https://github.com/jjunior0102/merkdo)
+- **Deploy na Vercel:** [https://merkdo.vercel.app](https://merkdo.vercel.app) *(substitua pelo seu link real da Vercel)*
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 O que o sistema faz
+1. **Vitrine Pública (`/`):** Catálogo no estilo folheto digital com abas de filtro rápido por categorias (Hortifrúti, Açougue, Padaria, Mercearia, Adega, Limpeza) e badges dinâmicas de funcionamento ("Aberto hoje até as 21h").
+2. **Busca por URL (`/busca?q=...`):** Sistema de pesquisa integrado via `SearchParams` com tratamento de resultados vazios.
+3. **Área Administrativa Protegida (`/admin`):** Acesso restrito controlado por autenticação segura no servidor.
+4. **CRUD Completo de Fornecedores e Produtos:** Operações de criação, listagem e exclusão via Server Actions do Next.js.
+5. **Upload de Imagens Reais:** Integração com **Vercel Blob** para armazenamento de fotos de produtos (com limite de 2MB validado por Zod).
+6. **Alerta de Estoque Mínimo:** Indicador visual automático no painel do lojista quando o estoque atual atinge ou fica abaixo do mínimo estipulado.
+7. **Botão WhatsApp Nativo:** Chamadas de ação flutuantes e em cada produto gerando mensagens pré-formatadas para pedidos rápidos.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📊 Modelo ER do Banco de Dados (Prisma Schema)
+O sistema utiliza PostgreSQL hospedado no **Neon** com as seguintes entidades relacionais:
+- **User / Session / Account / Verification:** Tabelas de autenticação (Better Auth).
+- **Fornecedor (1) ──── (N) Produto:** Relacionamento 1 para N onde um fornecedor fornece múltiplos produtos.
+- **Produto:** Contém campos como `nome`, `categoria`, `preco`, `estoqueAtual`, `estoqueMinimo`, `imagemUrl` e `fornecedorId`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Instruções para Execução Local
 
-## Deploy on Vercel
+Siga os passos abaixo para rodar o projeto na sua máquina:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Clone o repositório:
+   ```bash
+   git clone [https://github.com/jjunior0102/merkdo.git](https://github.com/jjunior0102/merkdo.git)
+   cd merkdo
