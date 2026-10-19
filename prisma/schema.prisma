@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// MODELOS DO BETTER AUTH
+// ==========================================
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id           String    @id @default(cuid())
+  userId       String
+  accountId    String
+  providerId   String
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+  password     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ==========================================
+// MODELOS DO SISTEMA MERKDO
+// ==========================================
+model Fornecedor {
+  id        String    @id @default(uuid())
+  nome      String
+  empresa   String
+  telefone  String
+  email     String
+  createdAt DateTime  @default(now())
+  
+  // Relacionamento 1:N
+  produtos  Produto[]
+}
+
+model Produto {
+  id            String   @id @default(uuid())
+  nome          String
+  categoria     String
+  preco         Float
+  estoqueAtual  Int
+  estoqueMinimo Int
+  imagemUrl     String
+  createdAt     DateTime @default(now())
+
+  // Chave Estrangeira
+  fornecedorId  String
+  fornecedor    Fornecedor @relation(fields: [fornecedorId], references: [id], onDelete: Restrict)
+}
