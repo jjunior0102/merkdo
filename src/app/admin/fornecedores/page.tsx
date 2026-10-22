@@ -5,14 +5,14 @@ import { revalidatePath } from "next/cache";
 
 async function criarFornecedor(formData: FormData) {
   "use server";
-  const nome = formData.get("nome") as string;
+  const empresa = formData.get("empresa") as string;
   const telefone = formData.get("telefone") as string;
   const email = formData.get("email") as string;
 
-  if (!nome) return;
+  if (!empresa) return;
 
   await prisma.fornecedor.create({
-    data: { nome, telefone, email },
+    data: { empresa, telefone, email },
   });
 
   revalidatePath("/admin/fornecedores");
@@ -29,7 +29,7 @@ async function excluirFornecedor(id: string) {
 
 export default async function FornecedoresPage() {
   const fornecedores = await prisma.fornecedor.findMany({
-    orderBy: { nome: "asc" },
+    orderBy: { empresa: "asc" },
     include: { _count: { select: { produtos: true } } },
   });
 
@@ -54,7 +54,7 @@ export default async function FornecedoresPage() {
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">Nome da Empresa / Produtor</label>
               <input
-                name="nome"
+                name="empresa"
                 required
                 placeholder="Ex: Hortifrúti Verde Vida"
                 className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
@@ -106,7 +106,7 @@ export default async function FornecedoresPage() {
                         <Building2 className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="font-serif font-bold text-slate-900 text-base">{f.nome}</h3>
+                        <h3 className="font-serif font-bold text-slate-900 text-base">{f.empresa}</h3>
                         <span className="text-xs text-slate-500">{f._count.produtos} produto(s) vinculado(s)</span>
                       </div>
                     </div>
