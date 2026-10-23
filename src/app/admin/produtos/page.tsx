@@ -1,23 +1,57 @@
 import { prisma } from "@/lib/prisma";
-import { criarProduto, excluirProduto } from "./actions";
 import Link from "next/link";
-import Image from "next/image";
-import { Package, ArrowLeft, Trash2, Plus, AlertTriangle, Tag, DollarSign, Layers } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Package, DollarSign, Layers, Building2 } from "lucide-react";
+import { revalidatePath } from "next/cache";
+
+async function criarProduto(formData: FormData) {
+  "use server";
+  const nome = formData.get("nome") as string;
+  const categoria = formData.get("categoria") as string;
+  const preco = parseFloat(formData.get("preco") as string);
+  const estoque = parseInt(formData.get("estoque") as string, 10);
+  const estoqueMinimo = parseInt(formData.get("estoqueMinimo") as string, 10);
+  const fornecedorId = formData.get("fornecedorId") as string;
+  const imagem = formData.get("imagem") as string || "";
+
+  if (!nome || isNaN(preco)) return;
+
+  await prisma.produto.create({
+    data: {
+      nome,
+      categoria,
+      preco,
+      estoque,
+      estoqueMinimo: isNaN(estoqueMinimo) ? 5 : estoqueMinimo,
+      imagem,
+      fornecedorId: fornecedorId && fornecedorId !== "" ? fornecedorId : null,
+    },
+  });
+
+  revalidatePath("/admin/produtos");
+}
+
+async function excluirProduto(id: string) {
+  "use server";
+  await prisma.produto.delete({
+    where: { id },
+  });
+
+  revalidatePath("/admin/produtos");
+}
 
 export default async function ProdutosPage() {
-  const produtos = await prisma.produto.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { fornecedor: true },
-  });
-
-  const fornecedores = await prisma.fornecedor.findMany({
-    orderBy: { empresa: "asc" },
-  });
-
-  const categorias = ["Hortifrúti", "Açougue", "Padaria", "Mercearia", "Adega", "Limpeza"];
+  const [produtos, fornecedores] = await Promise.all([
+    prisma.produto.findMany({
+      orderBy: { nome: "asc" },
+      include: { fornecedor: true },
+    }),
+    prisma.fornecedor.findMany({
+      orderBy: { nome: "asc" },
+    }),
+  ]);
 
   return (
-    <main className="min-h-screen bg-stone-50 text-slate-900 font-sans pb-16">
+    <main className="min-h-screen bg-stone-50 text-slate-950 font-sans pb-16">
       <header className="bg-white border-b border-stone-200 py-4 px-8 mb-8">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-[#3A4D28]">
@@ -33,19 +67,13 @@ export default async function ProdutosPage() {
             <Plus className="w-5 h-5 text-[#D96B43]" /> Novo Produto
           </h2>
 
-          <form
-            action={async (formData) => {
-              "use server";
-              await criarProduto(null, formData);
-            }}
-            className="space-y-4"
-          >
+          <form action={criarProduto} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">Nome do Produto</label>
               <input
                 name="nome"
                 required
-                placeholder="Ex: Café Orgânico Artesanal"
+                placeholder="Ex: Café Orgânico"
                 className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
               />
             </div>
@@ -54,13 +82,13 @@ export default async function ProdutosPage() {
               <label className="block text-xs font-medium text-slate-700 mb-1">Categoria</label>
               <select
                 name="categoria"
-                required
                 className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28] bg-white"
               >
-                <option value="">Selecione uma categoria...</option>
-                {categorias.map((cat: string) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
+                <option value="Padaria">Padaria</option>
+                <option value="Hortifrúti">Hortifrúti</option>
+                <option value="Mercearia">Mercearia</option>
+                <option value="Bebidas">Bebidas</option>
+                <option value="Limpeza">Limpeza</option>
               </select>
             </div>
 
@@ -71,24 +99,19 @@ export default async function ProdutosPage() {
                   name="preco"
                   type="number"
                   step="0.01"
-                  min="0.01"
                   required
                   placeholder="14.90"
                   className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Fornecedor</label>
-                <select
-                  name="fornecedorId"
-                  required
-                  className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28] bg-white"
-                >
-                  <option value="">Fornecedor...</option>
-                  {fornecedores.map((f: any) => (
-                    <option key={f.id} value={f.id}>{f.empresa}</option>
-                  ))}
-                </select>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Estoque Mín.</label>
+                <input
+                  name="estoqueMinimo"
+                  type="number"
+                  defaultValue="5"
+                  className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
+                />
               </div>
             </div>
 
@@ -96,35 +119,34 @@ export default async function ProdutosPage() {
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Estoque Atual</label>
                 <input
-                  name="estoqueAtual"
+                  name="estoque"
                   type="number"
-                  min="0"
-                  required
-                  placeholder="25"
+                  defaultValue="25"
                   className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Estoque Mínimo</label>
-                <input
-                  name="estoqueMinimo"
-                  type="number"
-                  min="0"
-                  required
-                  placeholder="5"
-                  className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
-                />
+                <label className="block text-xs font-medium text-slate-700 mb-1">Fornecedor</label>
+                <select
+                  name="fornecedorId"
+                  className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28] bg-white"
+                >
+                  <option value="">Selecione...</option>
+                  {fornecedores.map((f: any) => (
+                    <option key={f.id} value={f.id}>
+                      {f.empresa || f.nome}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Imagem do Produto (Máx 2MB)</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">URL da Imagem (Opcional)</label>
               <input
                 name="imagem"
-                type="file"
-                accept="image/*"
-                required
-                className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-[#3A4D28] hover:file:bg-emerald-100 cursor-pointer"
+                placeholder="https://exemplo.com/foto.jpg"
+                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
               />
             </div>
 
@@ -146,56 +168,47 @@ export default async function ProdutosPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {produtos.map((p: any) => {
-                const emAlertaEstoque = p.estoqueAtual <= p.estoqueMinimo;
-
-                return (
-                  <div key={p.id} className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden flex flex-col justify-between">
-                    <div>
-                      <div className="relative h-40 w-full bg-stone-100">
-                        <Image src={p.imagemUrl} alt={p.nome} fill className="object-cover" />
-                        <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#3A4D28] text-xs font-medium px-2.5 py-1 rounded-full">
+              {produtos.map((p: any) => (
+                <div key={p.id} className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <span className="text-xs font-medium bg-emerald-50 text-[#3A4D28] px-2.5 py-1 rounded-full">
                           {p.categoria}
                         </span>
-                        {emAlertaEstoque && (
-                          <span className="absolute top-3 right-3 bg-red-100 text-red-700 text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1">
-                            <AlertTriangle className="w-3.5 h-3.5" /> Estoque Baixo
-                          </span>
-                        )}
+                        <h3 className="font-serif font-bold text-slate-900 text-base mt-2">{p.nome}</h3>
                       </div>
-
-                      <div className="p-5">
-                        <h3 className="font-serif font-bold text-slate-900 text-lg mb-1">{p.nome}</h3>
-                        <p className="text-xs text-slate-500 mb-4">Fornecedor: {p.fornecedor.empresa}</p>
-
-                        <div className="grid grid-cols-2 gap-2 text-xs mb-4 bg-stone-50 p-3 rounded-xl">
-                          <div className="flex items-center gap-1.5 text-slate-700 font-medium">
-                            <DollarSign className="w-4 h-4 text-[#D96B43]" />
-                            R$ {p.preco.toFixed(2)}
-                          </div>
-                          <div className={`flex items-center gap-1.5 font-medium ${emAlertaEstoque ? 'text-red-600' : 'text-slate-700'}`}>
-                            <Layers className="w-4 h-4 text-[#D96B43]" />
-                            Estoque: {p.estoqueAtual} (Mín: {p.estoqueMinimo})
-                          </div>
-                        </div>
-                      </div>
+                      <span className="font-bold text-[#3A4D28] text-lg">
+                        R$ {p.preco.toFixed(2)}
+                      </span>
                     </div>
 
-                    <div className="px-5 pb-5">
-                      <form
-                        action={async () => {
-                          "use server";
-                          await excluirProduto(p.id);
-                        }}
-                      >
-                        <button className="w-full flex items-center justify-center gap-1.5 text-xs text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 py-2 rounded-xl transition-colors font-medium min-h-[44px]">
-                          <Trash2 className="w-3.5 h-3.5" /> Remover Produto
-                        </button>
-                      </form>
+                    <div className="space-y-1.5 text-xs text-slate-600 mb-4 bg-stone-50 p-3 rounded-xl">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-3.5 h-3.5 text-[#D96B43]" />
+                        <span>Estoque: <strong>{p.estoque}</strong> un. (Mín: {p.estoqueMinimo})</span>
+                      </div>
+                      {p.fornecedor && (
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-3.5 h-3.5 text-[#D96B43]" />
+                          <span>Fornecedor: {p.fornecedor.empresa || p.fornecedor.nome}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                );
-              })}
+
+                  <form
+                    action={async () => {
+                      "use server";
+                      await excluirProduto(p.id);
+                    }}
+                  >
+                    <button className="w-full flex items-center justify-center gap-1.5 text-xs text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 py-2 rounded-xl transition-colors font-medium min-h-[44px]">
+                      <Trash2 className="w-3.5 h-3.5" /> Remover Produto
+                    </button>
+                  </form>
+                </div>
+              ))}
             </div>
           )}
         </div>
