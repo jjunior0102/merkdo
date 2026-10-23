@@ -7,35 +7,42 @@ async function criarProduto(formData: FormData) {
   "use server";
   const nome = formData.get("nome") as string;
   const categoria = formData.get("categoria") as string;
-  const preco = parseFloat(formData.get("preco") as string);
-  const estoqueVal = parseInt(formData.get("estoque") as string, 10);
+  const precoStr = formData.get("preco") as string;
+  const preco = precoStr ? parseFloat(precoStr.replace(",", ".")) : 0;
   const estoqueMinimoVal = parseInt(formData.get("estoqueMinimo") as string, 10);
   const fornecedorIdRaw = formData.get("fornecedorId") as string | null;
-  const fornecedorId = fornecedorIdRaw && fornecedorIdRaw !== "" ? fornecedorIdRaw : undefined;
+  const fornecedorId = fornecedorIdRaw && fornecedorIdRaw !== "" ? fornecedorIdRaw : null;
   const imagem = (formData.get("imagem") as string) || "";
 
   if (!nome || isNaN(preco)) return;
 
-  // Utilizando uncheked create para garantir compatibilidade total com quaisquer nomes de colunas do Prisma
-  await prisma.produto.create({
-    data: {
-      nome,
-      categoria,
-      preco,
-      estoqueMinimo: isNaN(estoqueMinimoVal) ? 5 : estoqueMinimoVal,
-      imagem,
-      fornecedorId,
-    } as any,
-  });
+  try {
+    await prisma.produto.create({
+      data: {
+        nome,
+        categoria,
+        preco,
+        estoqueMinimo: isNaN(estoqueMinimoVal) ? 5 : estoqueMinimoVal,
+        imagem,
+        ...(fornecedorId ? { fornecedorId } : {}),
+      } as any,
+    });
+  } catch (error) {
+    console.error("Erro ao criar produto:", error);
+  }
 
   revalidatePath("/admin/produtos");
 }
 
 async function excluirProduto(id: string) {
   "use server";
-  await prisma.produto.delete({
-    where: { id },
-  });
+  try {
+    await prisma.produto.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Erro ao excluir produto:", error);
+  }
 
   revalidatePath("/admin/produtos");
 }
@@ -98,8 +105,7 @@ export default async function ProdutosPage() {
                 <label className="block text-xs font-medium text-slate-700 mb-1">Preço (R$)</label>
                 <input
                   name="preco"
-                  type="number"
-                  step="0.01"
+                  type="text"
                   required
                   placeholder="14.90"
                   className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
@@ -116,30 +122,19 @@ export default async function ProdutosPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Estoque Atual</label>
-                <input
-                  name="estoque"
-                  type="number"
-                  defaultValue="25"
-                  className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Fornecedor</label>
-                <select
-                  name="fornecedorId"
-                  className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28] bg-white"
-                >
-                  <option value="">Selecione...</option>
-                  {fornecedores.map((f: any) => (
-                    <option key={f.id} value={f.id}>
-                      {f.empresa || f.nome}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Fornecedor</label>
+              <select
+                name="fornecedorId"
+                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28] bg-white"
+              >
+                <option value="">Selecione...</option>
+                {fornecedores.map((f: any) => (
+                  <option key={f.id} value={f.id}>
+                    {f.empresa || f.nome}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -180,14 +175,14 @@ export default async function ProdutosPage() {
                         <h3 className="font-serif font-bold text-slate-900 text-base mt-2">{p.nome}</h3>
                       </div>
                       <span className="font-bold text-[#3A4D28] text-lg">
-                        R$ {p.preco.toFixed(2)}
+                        R$ {typeof p.preco === "number" ? p.preco.toFixed(2) : p.preco}
                       </span>
                     </div>
 
                     <div className="space-y-1.5 text-xs text-slate-600 mb-4 bg-stone-50 p-3 rounded-xl">
                       <div className="flex items-center gap-2">
                         <Package className="w-3.5 h-3.5 text-[#D96B43]" />
-                        <span>Estoque: <strong>{p.estoque ?? p.quantidade ?? 25}</strong> un. (Mín: {p.estoqueMinimo})</span>
+                        <span>Estoque Mín: {p.estoqueMinimo} un.</span>
                       </div>
                       {p.fornecedor && (
                         <div className="flex items-center gap-2">
