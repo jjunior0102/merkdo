@@ -90,3 +90,13 @@ model Produto {
   fornecedorId  String
   fornecedor    Fornecedor @relation(fields: [fornecedorId], references: [id], onDelete: Restrict)
 }
+
+model Pedido {
+  id        String   @id @default(uuid())
+  cliente   String
+  telefone  String?
+  itens     String   // Descrição dos produtos comprados
+  total     Float
+  status    String   @default("Pendente") // Pendente, Concluído, Cancelado
+  createdAt DateTime @default(now())
+}

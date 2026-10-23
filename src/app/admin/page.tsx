@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { Package, Building2, ArrowRight, ShieldCheck, LogOut } from "lucide-react";
+import { Package, Building2, ShoppingBag, ArrowRight, ShieldCheck, LogOut } from "lucide-react";
 
 export default async function AdminDashboard() {
   const session = await auth.api.getSession({
@@ -33,10 +33,10 @@ export default async function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-8">
         <div className="mb-8">
           <h2 className="text-2xl font-serif font-bold text-slate-900">Painel de Controle</h2>
-          <p className="text-slate-600 text-sm mt-1">Gerencie produtos, estoque mínimo e fornecedores do seu mercadinho.</p>
+          <p className="text-slate-600 text-sm mt-1">Gerencie produtos, estoque, fornecedores e pedidos do seu mercadinho.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between hover:border-[#3A4D28] transition-all">
             <div>
               <div className="p-3 bg-emerald-50 rounded-xl text-[#3A4D28] w-fit mb-4">
@@ -44,7 +44,7 @@ export default async function AdminDashboard() {
               </div>
               <h3 className="text-lg font-serif font-bold text-slate-900 mb-2">Gerenciar Produtos</h3>
               <p className="text-slate-600 text-sm mb-6">
-                Cadastre novos itens, controle o estoque atual, defina o estoque mínimo e vincule aos fornecedores cadastrados.
+                Cadastre novos itens, controle o catálogo e vincule aos fornecedores cadastrados.
               </p>
             </div>
             <Link
@@ -62,7 +62,7 @@ export default async function AdminDashboard() {
               </div>
               <h3 className="text-lg font-serif font-bold text-slate-900 mb-2">Gerenciar Fornecedores</h3>
               <p className="text-slate-600 text-sm mb-6">
-                Cadastre empresas parceiras, telefones e e-mails para vincular diretamente aos produtos do catálogo.
+                Cadastre empresas parceiras, telefones e e-mails para vincular diretamente aos produtos.
               </p>
             </div>
             <Link
@@ -70,6 +70,24 @@ export default async function AdminDashboard() {
               className="inline-flex items-center justify-center gap-2 bg-[#3A4D28] text-white py-3 px-4 rounded-xl font-medium hover:bg-emerald-900 transition-all text-sm min-h-[44px]"
             >
               Acessar Fornecedores <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between hover:border-[#3A4D28] transition-all">
+            <div>
+              <div className="p-3 bg-emerald-50 rounded-xl text-[#3A4D28] w-fit mb-4">
+                <ShoppingBag className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-serif font-bold text-slate-900 mb-2">Controle de Pedidos</h3>
+              <p className="text-slate-600 text-sm mb-6">
+                Acompanhe em tempo real todos os pedidos feitos pelos clientes, visualize os itens e atualize o status.
+              </p>
+            </div>
+            <Link
+              href="/admin/pedidos"
+              className="inline-flex items-center justify-center gap-2 bg-[#3A4D28] text-white py-3 px-4 rounded-xl font-medium hover:bg-emerald-900 transition-all text-sm min-h-[44px]"
+            >
+              Acessar Pedidos <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
