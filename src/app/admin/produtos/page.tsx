@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { ArrowLeft, Plus, Trash2, Package, DollarSign, Layers, Building2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Package, Building2 } from "lucide-react";
 import { revalidatePath } from "next/cache";
 
 async function criarProduto(formData: FormData) {
@@ -10,8 +10,9 @@ async function criarProduto(formData: FormData) {
   const preco = parseFloat(formData.get("preco") as string);
   const estoque = parseInt(formData.get("estoque") as string, 10);
   const estoqueMinimo = parseInt(formData.get("estoqueMinimo") as string, 10);
-  const fornecedorId = formData.get("fornecedorId") as string;
-  const imagem = formData.get("imagem") as string || "";
+  const fornecedorIdRaw = formData.get("fornecedorId") as string | null;
+  const fornecedorId = fornecedorIdRaw && fornecedorIdRaw !== "" ? fornecedorIdRaw : undefined;
+  const imagem = (formData.get("imagem") as string) || "";
 
   if (!nome || isNaN(preco)) return;
 
@@ -23,7 +24,7 @@ async function criarProduto(formData: FormData) {
       estoque,
       estoqueMinimo: isNaN(estoqueMinimo) ? 5 : estoqueMinimo,
       imagem,
-      fornecedorId: fornecedorId && fornecedorId !== "" ? fornecedorId : null,
+      fornecedorId,
     },
   });
 
