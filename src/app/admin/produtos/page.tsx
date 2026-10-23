@@ -8,7 +8,7 @@ async function criarProduto(formData: FormData) {
   const nome = formData.get("nome") as string;
   const categoria = formData.get("categoria") as string;
   const preco = parseFloat(formData.get("preco") as string);
-  const estoque = parseInt(formData.get("estoque") as string, 10);
+  const quantidade = parseInt(formData.get("quantidade") as string, 10);
   const estoqueMinimo = parseInt(formData.get("estoqueMinimo") as string, 10);
   const fornecedorIdRaw = formData.get("fornecedorId") as string | null;
   const fornecedorId = fornecedorIdRaw && fornecedorIdRaw !== "" ? fornecedorIdRaw : undefined;
@@ -21,7 +21,7 @@ async function criarProduto(formData: FormData) {
       nome,
       categoria,
       preco,
-      estoque,
+      quantidade: isNaN(quantidade) ? 25 : quantidade,
       estoqueMinimo: isNaN(estoqueMinimo) ? 5 : estoqueMinimo,
       imagem,
       fornecedorId,
@@ -120,7 +120,7 @@ export default async function ProdutosPage() {
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Estoque Atual</label>
                 <input
-                  name="estoque"
+                  name="quantidade"
                   type="number"
                   defaultValue="25"
                   className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
@@ -187,7 +187,7 @@ export default async function ProdutosPage() {
                     <div className="space-y-1.5 text-xs text-slate-600 mb-4 bg-stone-50 p-3 rounded-xl">
                       <div className="flex items-center gap-2">
                         <Package className="w-3.5 h-3.5 text-[#D96B43]" />
-                        <span>Estoque: <strong>{p.estoque}</strong> un. (Mín: {p.estoqueMinimo})</span>
+                        <span>Estoque: <strong>{p.quantidade}</strong> un. (Mín: {p.estoqueMinimo})</span>
                       </div>
                       {p.fornecedor && (
                         <div className="flex items-center gap-2">
