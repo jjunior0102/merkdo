@@ -9,29 +9,41 @@ async function criarProduto(formData: FormData) {
   const categoria = formData.get("categoria") as string;
   const precoStr = formData.get("preco") as string;
   const preco = precoStr ? parseFloat(precoStr.replace(",", ".")) : 0;
+  const estoqueAtualVal = parseInt(formData.get("estoqueAtual") as string, 10);
   const estoqueMinimoVal = parseInt(formData.get("estoqueMinimo") as string, 10);
   const fornecedorId = formData.get("fornecedorId") as string;
+  const imagemUrl = (formData.get("imagemUrl") as string) || "";
 
   if (!nome || isNaN(preco) || !fornecedorId) return;
 
-  await prisma.produto.create({
-    data: {
-      nome,
-      categoria,
-      preco,
-      estoqueMinimo: isNaN(estoqueMinimoVal) ? 5 : estoqueMinimoVal,
-      fornecedorId,
-    },
-  });
+  try {
+    await prisma.produto.create({
+      data: {
+        nome,
+        categoria,
+        preco,
+        estoqueAtual: isNaN(estoqueAtualVal) ? 25 : estoqueAtualVal,
+        estoqueMinimo: isNaN(estoqueMinimoVal) ? 5 : estoqueMinimoVal,
+        imagemUrl,
+        fornecedorId,
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao criar produto:", error);
+  }
 
   revalidatePath("/admin/produtos");
 }
 
 async function excluirProduto(id: string) {
   "use server";
-  await prisma.produto.delete({
-    where: { id },
-  });
+  try {
+    await prisma.produto.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Erro ao excluir produto:", error);
+  }
 
   revalidatePath("/admin/produtos");
 }
@@ -111,20 +123,40 @@ export default async function ProdutosPage() {
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Estoque Atual</label>
+                <input
+                  name="estoqueAtual"
+                  type="number"
+                  defaultValue="25"
+                  className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Fornecedor</label>
+                <select
+                  name="fornecedorId"
+                  required
+                  className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28] bg-white"
+                >
+                  <option value="">Selecione...</option>
+                  {fornecedores.map((f: any) => (
+                    <option key={f.id} value={f.id}>
+                      {f.empresa || f.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Fornecedor</label>
-              <select
-                name="fornecedorId"
-                required
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28] bg-white"
-              >
-                <option value="">Selecione um fornecedor...</option>
-                {fornecedores.map((f: any) => (
-                  <option key={f.id} value={f.id}>
-                    {f.empresa || f.nome}
-                  </option>
-                ))}
-              </select>
+              <label className="block text-xs font-medium text-slate-700 mb-1">URL da Imagem (Opcional)</label>
+              <input
+                name="imagemUrl"
+                placeholder="https://exemplo.com/foto.jpg"
+                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
+              />
             </div>
 
             <button
@@ -163,7 +195,7 @@ export default async function ProdutosPage() {
                     <div className="space-y-1.5 text-xs text-slate-600 mb-4 bg-stone-50 p-3 rounded-xl">
                       <div className="flex items-center gap-2">
                         <Package className="w-3.5 h-3.5 text-[#D96B43]" />
-                        <span>Estoque Mínimo: {p.estoqueMinimo} un.</span>
+                        <span>Estoque: <strong>{p.estoqueAtual}</strong> un. (Mín: {p.estoqueMinimo})</span>
                       </div>
                       {p.fornecedor && (
                         <div className="flex items-center gap-2">
