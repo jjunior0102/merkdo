@@ -10,37 +10,28 @@ async function criarProduto(formData: FormData) {
   const precoStr = formData.get("preco") as string;
   const preco = precoStr ? parseFloat(precoStr.replace(",", ".")) : 0;
   const estoqueMinimoVal = parseInt(formData.get("estoqueMinimo") as string, 10);
-  const fornecedorIdRaw = formData.get("fornecedorId") as string | null;
-  const fornecedorId = fornecedorIdRaw && fornecedorIdRaw !== "" ? fornecedorIdRaw : null;
+  const fornecedorId = formData.get("fornecedorId") as string;
 
-  if (!nome || isNaN(preco)) return;
+  if (!nome || isNaN(preco) || !fornecedorId) return;
 
-  try {
-    await prisma.produto.create({
-      data: {
-        nome,
-        categoria,
-        preco,
-        estoqueMinimo: isNaN(estoqueMinimoVal) ? 5 : estoqueMinimoVal,
-        ...(fornecedorId ? { fornecedorId } : {}),
-      } as any,
-    });
-  } catch (error) {
-    console.error("Erro detalhado ao criar produto:", error);
-  }
+  await prisma.produto.create({
+    data: {
+      nome,
+      categoria,
+      preco,
+      estoqueMinimo: isNaN(estoqueMinimoVal) ? 5 : estoqueMinimoVal,
+      fornecedorId,
+    },
+  });
 
   revalidatePath("/admin/produtos");
 }
 
 async function excluirProduto(id: string) {
   "use server";
-  try {
-    await prisma.produto.delete({
-      where: { id },
-    });
-  } catch (error) {
-    console.error("Erro ao excluir produto:", error);
-  }
+  await prisma.produto.delete({
+    where: { id },
+  });
 
   revalidatePath("/admin/produtos");
 }
@@ -124,9 +115,10 @@ export default async function ProdutosPage() {
               <label className="block text-xs font-medium text-slate-700 mb-1">Fornecedor</label>
               <select
                 name="fornecedorId"
+                required
                 className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28] bg-white"
               >
-                <option value="">Selecione...</option>
+                <option value="">Selecione um fornecedor...</option>
                 {fornecedores.map((f: any) => (
                   <option key={f.id} value={f.id}>
                     {f.empresa || f.nome}
