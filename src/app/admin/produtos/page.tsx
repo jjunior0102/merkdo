@@ -12,7 +12,6 @@ async function criarProduto(formData: FormData) {
   const estoqueMinimoVal = parseInt(formData.get("estoqueMinimo") as string, 10);
   const fornecedorIdRaw = formData.get("fornecedorId") as string | null;
   const fornecedorId = fornecedorIdRaw && fornecedorIdRaw !== "" ? fornecedorIdRaw : null;
-  const imagem = (formData.get("imagem") as string) || "";
 
   if (!nome || isNaN(preco)) return;
 
@@ -23,9 +22,8 @@ async function criarProduto(formData: FormData) {
         categoria,
         preco,
         estoqueMinimo: isNaN(estoqueMinimoVal) ? 5 : estoqueMinimoVal,
-        imagem,
         ...(fornecedorId ? { fornecedorId } : {}),
-      },
+      } as any,
     });
   } catch (error) {
     console.error("Erro detalhado ao criar produto:", error);
@@ -135,15 +133,6 @@ export default async function ProdutosPage() {
                   </option>
                 ))}
               </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">URL da Imagem (Opcional)</label>
-              <input
-                name="imagem"
-                placeholder="https://exemplo.com/foto.jpg"
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
-              />
             </div>
 
             <button
