@@ -22,7 +22,21 @@ async function criarFornecedor(formData: FormData) {
 
 async function excluirFornecedor(id: string) {
   "use server";
-  try { await prisma.fornecedor.delete({ where: { id } }); } catch (error) {}
+  try {
+    // Verifica se existem produtos associados antes de apagar
+    const produtosVinculados = await prisma.produto.count({
+      where: { fornecedorId: id },
+    });
+
+    if (produtosVinculados > 0) {
+      console.error("Não é possível apagar fornecedor com produtos vinculados.");
+      return;
+    }
+
+    await prisma.fornecedor.delete({ where: { id } });
+  } catch (error) {
+    console.error("Erro ao excluir fornecedor:", error);
+  }
   revalidatePath("/admin/fornecedores");
 }
 
@@ -88,7 +102,7 @@ export default async function FornecedoresPage() {
                   </div>
                 </div>
                 <form action={async () => { "use server"; await excluirFornecedor(f.id); }} className="mt-2 pt-4 border-t border-white/5">
-                  <button className="flex items-center gap-1.5 text-xs text-zinc-600 hover:text-red-400 transition-colors">
+                  <button type="submit" className="flex items-center gap-1.5 text-xs text-zinc-600 hover:text-red-400 transition-colors">
                     <Trash2 className="w-3.5 h-3.5" /> Remover
                   </button>
                 </form>
