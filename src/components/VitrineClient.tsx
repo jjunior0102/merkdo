@@ -95,7 +95,7 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
             />
           </div>
 
-          <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 hide-scrollbar">
+          <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {categorias.map((cat) => (
               <button
                 key={cat}
@@ -188,7 +188,7 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
           ) : (
             <>
               {/* Lista de Itens */}
-              <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-6 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {cart.map((item) => (
                   <div key={item.produto.id} className="flex justify-between items-center group">
                     <div>
