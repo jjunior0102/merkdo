@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Store, Search, ArrowRight, Package } from "lucide-react";
+import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Store, Search, ArrowRight, Package, Image as ImageIcon } from "lucide-react";
 import { criarPedidoCliente } from "@/actions/pedido";
 
 export default function VitrineClient({ produtos }: { produtos: any[] }) {
@@ -33,7 +33,7 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
     if (!isDragging || !scrollRef.current) return;
     e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5; // Velocidade do arraste
+    const walk = (x - startX) * 1.5;
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
@@ -119,7 +119,6 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
             />
           </div>
 
-          {/* Container das Categorias com Drag-to-Scroll */}
           <div
             ref={scrollRef}
             onMouseDown={onMouseDown}
@@ -158,7 +157,16 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 
                 <div className="relative z-10">
-                  <div className="flex justify-between items-start mb-4">
+                  {/* Imagem do Produto */}
+                  <div className="w-full h-36 mb-4 rounded-xl overflow-hidden bg-black/40 border border-white/5 relative flex items-center justify-center">
+                    {produto.imagemUrl ? (
+                      <img src={produto.imagemUrl} alt={produto.nome} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <ImageIcon className="w-8 h-8 text-zinc-700" />
+                    )}
+                  </div>
+
+                  <div className="flex justify-between items-start mb-3">
                     <span className="text-[10px] font-mono font-medium text-zinc-500 border border-white/10 px-2 py-0.5 rounded uppercase">
                       {produto.categoria}
                     </span>
