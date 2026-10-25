@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Store, Search, Phone, User, X } from "lucide-react";
+import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Store, Search, Phone, User, X, ArrowRight } from "lucide-react";
 import { criarPedidoCliente } from "@/actions/pedido";
 
 export default function VitrineClient({ produtos }: { produtos: any[] }) {
