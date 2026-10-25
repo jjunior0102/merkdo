@@ -10,25 +10,27 @@ export default async function HomePage() {
   });
 
   return (
-    <main className="min-h-screen bg-stone-50 text-slate-950 font-sans pb-16">
-      <header className="bg-white border-b border-stone-200 py-4 px-8 mb-8 sticky top-0 z-30 shadow-sm">
+    <main className="min-h-screen bg-[#09090b] text-zinc-300 font-sans selection:bg-emerald-500/30 selection:text-emerald-200 pb-16 relative overflow-hidden">
+      {/* Glow de fundo - Efeito Vercel */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-900/20 rounded-full blur-[120px] pointer-events-none -z-10" />
+
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#09090b]/70 border-b border-white/5 py-4 px-8 mb-8">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-emerald-50 rounded-xl text-[#3A4D28]">
-              <Store className="w-6 h-6" />
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+              <Store className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-serif font-bold text-[#3A4D28]">Merkdo</h1>
-              <p className="text-xs text-slate-500">O seu mercadinho de bairro na web</p>
+              <h1 className="text-lg font-semibold text-zinc-100 tracking-tight">Merkdo</h1>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
             <Link
               href="/admin"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-[#3A4D28] bg-stone-100 hover:bg-stone-200 px-3.5 py-2 rounded-xl transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors border border-white/5 shadow-sm"
             >
-              <ShieldCheck className="w-4 h-4 text-[#3A4D28]" /> Painel Admin
+              <ShieldCheck className="w-4 h-4" /> Acesso Restrito
             </Link>
           </div>
         </div>

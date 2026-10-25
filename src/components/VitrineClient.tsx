@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Store, Search, Phone, User, X, ArrowRight } from "lucide-react";
+import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Store, Search, ArrowRight, Package } from "lucide-react";
 import { criarPedidoCliente } from "@/actions/pedido";
 
 export default function VitrineClient({ produtos }: { produtos: any[] }) {
@@ -12,7 +12,6 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
   const [telefone, setTelefone] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
 
   const categorias = ["Todos", "Padaria", "Hortifrúti", "Mercearia", "Bebidas", "Limpeza"];
 
@@ -32,7 +31,6 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
       }
       return [...prev, { produto, quantidade: 1 }];
     });
-    setCartOpen(true);
   };
 
   const alterarQuantidade = (id: string, delta: number) => {
@@ -74,36 +72,38 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
       setSucesso(true);
       setCart([]);
     } else {
-      alert("Erro ao enviar pedido. Tente novamente.");
+      alert("Erro ao processar pedido. Tente novamente.");
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-3 gap-8 relative">
-      {/* Listagem de Produtos */}
-      <div className="lg:col-span-2 space-y-6">
-        {/* Barra de Pesquisa e Filtros */}
-        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex flex-col sm:flex-row gap-4 justify-between items-center">
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+    <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+      
+      {/* Coluna Esquerda: Vitrine de Produtos */}
+      <div className="lg:col-span-8 space-y-8">
+        
+        {/* Busca e Filtros Modernos */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+          <div className="relative w-full sm:w-80 group">
+            <Search className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500 group-focus-within:text-emerald-400 transition-colors" />
             <input
               type="text"
               placeholder="Pesquisar produtos..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-stone-200 text-sm focus:outline-none focus:border-[#3A4D28]"
+              className="w-full pl-10 pr-4 py-2.5 bg-zinc-900/40 border border-white/5 rounded-xl text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all placeholder:text-zinc-600 backdrop-blur-sm"
             />
           </div>
 
-          <div className="flex gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+          <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 hide-scrollbar">
             {categorias.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategoriaAtiva(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
+                className={`px-4 py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap border ${
                   categoriaAtiva === cat
-                    ? "bg-[#3A4D28] text-white shadow-sm"
-                    : "bg-stone-100 text-slate-600 hover:bg-stone-200"
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                    : "bg-zinc-900/40 text-zinc-400 border-white/5 hover:bg-zinc-800 hover:text-zinc-200"
                 }`}
               >
                 {cat}
@@ -114,34 +114,37 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
 
         {/* Grid de Produtos */}
         {produtosFiltrados.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border border-stone-200 text-center text-slate-500 shadow-sm">
-            <Store className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-            <p className="text-base font-medium">Nenhum produto encontrado.</p>
+          <div className="border border-dashed border-white/10 rounded-3xl p-16 flex flex-col items-center justify-center text-center bg-zinc-900/20 backdrop-blur-sm">
+            <Store className="w-12 h-12 text-zinc-700 mb-4" />
+            <p className="text-base font-semibold text-zinc-300">Nenhum produto encontrado.</p>
+            <p className="text-sm text-zinc-600 mt-1">Tente ajustar a sua busca ou categoria.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {produtosFiltrados.map((produto: any) => (
-              <div key={produto.id} className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between hover:border-[#3A4D28] transition-all">
-                <div>
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-xs font-medium bg-emerald-50 text-[#3A4D28] px-2.5 py-1 rounded-full">
+              <div key={produto.id} className="group flex flex-col justify-between bg-zinc-900/30 border border-white/5 p-5 rounded-2xl hover:bg-zinc-900/60 hover:-translate-y-1 hover:border-white/10 transition-all duration-300 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="text-[10px] font-mono font-medium text-zinc-500 border border-white/10 px-2 py-0.5 rounded uppercase">
                       {produto.categoria}
                     </span>
-                    <span className="font-bold text-[#3A4D28] text-lg">
+                    <span className="font-bold text-zinc-100 tracking-tight">
                       R$ {produto.preco.toFixed(2)}
                     </span>
                   </div>
-                  <h3 className="font-serif font-bold text-slate-900 text-base mb-1">{produto.nome}</h3>
-                  {produto.fornecedor && (
-                    <p className="text-xs text-slate-500 mb-4">Fornecedor: {produto.fornecedor.empresa || produto.fornecedor.nome}</p>
-                  )}
+                  <h3 className="font-semibold text-zinc-200 text-sm mb-1">{produto.nome}</h3>
+                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-6">
+                    <Package className="w-3.5 h-3.5" /> <span>{produto.estoqueAtual} em estoque</span>
+                  </div>
                 </div>
 
                 <button
                   onClick={() => adicionarAoCarrinho(produto)}
-                  className="w-full bg-[#3A4D28] hover:bg-emerald-900 text-white text-xs py-2.5 rounded-xl font-medium transition-all flex items-center justify-center gap-1.5 min-h-[40px]"
+                  className="relative z-10 w-full bg-white/5 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs py-2.5 rounded-xl font-medium transition-all flex items-center justify-center gap-2 border border-white/5 hover:border-transparent hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                 >
-                  <Plus className="w-4 h-4" /> Adicionar ao Carrinho
+                  <Plus className="w-3.5 h-3.5" /> Adicionar
                 </button>
               </div>
             ))}
@@ -149,101 +152,93 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
         )}
       </div>
 
-      {/* Carrinho / Finalizar Pedido */}
-      <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm h-fit sticky top-24 space-y-6">
-        <div className="flex justify-between items-center border-b border-stone-100 pb-4">
-          <h2 className="text-lg font-serif font-bold text-slate-900 flex items-center gap-2">
-            <ShoppingBag className="w-5 h-5 text-[#3A4D28]" /> Seu Carrinho
-          </h2>
-          <span className="text-xs bg-stone-100 text-slate-700 font-semibold px-2.5 py-1 rounded-full">
-            {cart.reduce((acc, item) => acc + item.quantidade, 0)} itens
-          </span>
-        </div>
-
-        {sucesso ? (
-          <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-3">
-            <CheckCircle2 className="w-12 h-12 text-[#3A4D28] mx-auto" />
-            <h3 className="font-serif font-bold text-[#3A4D28] text-lg">Pedido Realizado!</h3>
-            <p className="text-xs text-slate-600">O seu pedido foi enviado com sucesso para o nosso painel administrativo. Obrigado pela preferência!</p>
-            <button
-              onClick={() => { setSucesso(false); setCliente(""); setTelefone(""); }}
-              className="w-full bg-[#3A4D28] text-white py-2 rounded-xl text-xs font-medium hover:bg-emerald-900 transition-colors mt-2"
-            >
-              Fazer Novo Pedido
-            </button>
+      {/* Coluna Direita: Carrinho Sticky (Bento Style) */}
+      <div className="lg:col-span-4">
+        <div className="bg-zinc-900/40 border border-white/5 rounded-3xl p-6 shadow-2xl backdrop-blur-md sticky top-28 flex flex-col max-h-[calc(100vh-8rem)]">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-base font-semibold text-zinc-100 flex items-center gap-2">
+              <ShoppingBag className="w-4 h-4 text-emerald-400" /> O seu Carrinho
+            </h2>
+            <span className="text-xs font-mono bg-zinc-800 text-zinc-300 px-2.5 py-1 rounded-full border border-white/5">
+              {cart.reduce((acc, item) => acc + item.quantidade, 0)} itens
+            </span>
           </div>
-        ) : cart.length === 0 ? (
-          <div className="text-center py-8 text-slate-400 text-sm">
-            O carrinho está vazio. Adicione produtos para começar.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="divide-y divide-stone-100 max-h-60 overflow-y-auto pr-1">
-              {cart.map((item) => (
-                <div key={item.produto.id} className="py-3 flex justify-between items-center text-sm">
-                  <div>
-                    <p className="font-medium text-slate-900">{item.produto.nome}</p>
-                    <p className="text-xs text-slate-500">R$ {item.produto.preco.toFixed(2)} un.</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => alterarQuantidade(item.produto.id, -1)}
-                      className="p-1 bg-stone-100 hover:bg-stone-200 rounded-lg text-slate-700"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="text-xs font-semibold w-5 text-center">{item.quantidade}</span>
-                    <button
-                      onClick={() => alterarQuantidade(item.produto.id, 1)}
-                      className="p-1 bg-stone-100 hover:bg-stone-200 rounded-lg text-slate-700"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
 
-            <div className="pt-4 border-t border-stone-100 flex justify-between items-center font-bold text-base text-slate-900">
-              <span>Total:</span>
-              <span className="text-[#3A4D28]">R$ {totalCarrinho.toFixed(2)}</span>
-            </div>
-
-            <form onSubmit={finalizarPedido} className="space-y-3 pt-2">
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Seu Nome *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Carlos Valli"
-                  value={cliente}
-                  onChange={(e) => setCliente(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
-                />
+          {sucesso ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl">
+              <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4 ring-1 ring-emerald-500/30">
+                <CheckCircle2 className="w-6 h-6 text-emerald-400" />
               </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Telefone / WhatsApp</label>
-                <input
-                  type="text"
-                  placeholder="(28) 99999-9999"
-                  value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
-                />
-              </div>
-
+              <h3 className="font-semibold text-zinc-100 mb-2">Pedido Enviado!</h3>
+              <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
+                A nossa equipa já recebeu o seu pedido e vai prepará-lo em breve.
+              </p>
               <button
-                type="submit"
-                disabled={enviando}
-                className="w-full bg-[#3A4D28] hover:bg-emerald-900 text-white py-3 rounded-xl font-medium transition-all text-sm shadow-sm flex items-center justify-center gap-2 min-h-[44px]"
+                onClick={() => { setSucesso(false); setCliente(""); setTelefone(""); }}
+                className="w-full bg-white/5 hover:bg-white/10 text-zinc-300 py-2.5 rounded-xl text-xs font-medium transition-colors border border-white/5"
               >
-                {enviando ? "A processar..." : "Finalizar Pedido pelo Site"} <ArrowRight className="w-4 h-4" />
+                Fazer Nova Encomenda
               </button>
-            </form>
-          </div>
-        )}
+            </div>
+          ) : cart.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+              <ShoppingBag className="w-10 h-10 text-zinc-800 mb-3" />
+              <p className="text-sm text-zinc-500 font-medium">O carrinho está vazio.</p>
+            </div>
+          ) : (
+            <>
+              {/* Lista de Itens */}
+              <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-6 custom-scrollbar">
+                {cart.map((item) => (
+                  <div key={item.produto.id} className="flex justify-between items-center group">
+                    <div>
+                      <p className="text-sm font-medium text-zinc-200">{item.produto.nome}</p>
+                      <p className="text-xs text-zinc-500 font-mono">R$ {item.produto.preco.toFixed(2)}</p>
+                    </div>
+                    <div className="flex items-center gap-3 bg-black/40 border border-white/5 rounded-lg p-1">
+                      <button onClick={() => alterarQuantidade(item.produto.id, -1)} className="p-1 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white transition-colors">
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="text-xs font-mono font-medium text-zinc-200 w-4 text-center">{item.quantidade}</span>
+                      <button onClick={() => alterarQuantidade(item.produto.id, 1)} className="p-1 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white transition-colors">
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total e Checkout */}
+              <div className="pt-4 border-t border-white/5 space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-zinc-400">Total a Pagar</span>
+                  <span className="text-lg font-bold text-zinc-100 tracking-tight">R$ {totalCarrinho.toFixed(2)}</span>
+                </div>
+
+                <form onSubmit={finalizarPedido} className="space-y-3">
+                  <input
+                    type="text" required placeholder="O seu Nome *"
+                    value={cliente} onChange={(e) => setCliente(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-black/50 border border-white/5 rounded-xl text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-zinc-600"
+                  />
+                  <input
+                    type="text" placeholder="Telefone / WhatsApp"
+                    value={telefone} onChange={(e) => setTelefone(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-black/50 border border-white/5 rounded-xl text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-zinc-600"
+                  />
+                  <button
+                    type="submit" disabled={enviando}
+                    className="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-medium transition-all text-sm shadow-[0_0_15px_rgba(16,185,129,0.15)] hover:shadow-[0_0_25px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {enviando ? "A processar..." : "Finalizar Pedido"} <ArrowRight className="w-4 h-4" />
+                  </button>
+                </form>
+              </div>
+            </>
+          )}
+        </div>
       </div>
+      
     </div>
   );
 }
