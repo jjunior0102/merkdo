@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { ArrowLeft, ShoppingBag, Trash2, CheckCircle2, Clock, Phone, User } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Trash2, CheckCircle2, Clock, Phone, User, Activity } from "lucide-react";
 import { revalidatePath } from "next/cache";
 
-// Server actions mantidas exatamente iguais
 async function atualizarStatusPedido(id: string, novoStatus: string) {
   "use server";
   try { await prisma.pedido.update({ where: { id }, data: { status: novoStatus } }); } catch (error) {}
@@ -21,14 +20,20 @@ export default async function PedidosPage() {
   return (
     <main className="min-h-screen bg-[#09090b] text-zinc-300 font-sans pb-16 selection:bg-emerald-500/30">
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#09090b]/80 border-b border-white/5 py-4 px-8 mb-8">
-        <div className="max-w-7xl mx-auto flex items-center gap-4">
-          <Link href="/admin" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-zinc-400 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div>
-            <h1 className="text-lg font-semibold text-zinc-100 tracking-tight">Fila de Pedidos</h1>
-            <p className="text-xs text-zinc-500 font-mono">Gerenciamento em Tempo Real</p>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/admin" className="flex items-center gap-2 hover:opacity-80 transition-all">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                <Activity className="w-3.5 h-3.5 text-white" />
+              </div>
+              <span className="text-base font-semibold text-zinc-100 tracking-tight hidden sm:block">Merkdo</span>
+            </Link>
+            <span className="text-zinc-700 text-lg font-light hidden sm:block">/</span>
+            <h1 className="text-base font-medium text-zinc-200 tracking-tight">Fila de Pedidos</h1>
           </div>
+          <Link href="/admin" className="flex items-center gap-2 text-xs text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg transition-colors border border-white/5">
+            <ArrowLeft className="w-3.5 h-3.5" /> Voltar
+          </Link>
         </div>
       </header>
 

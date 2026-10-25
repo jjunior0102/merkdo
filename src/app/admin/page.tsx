@@ -16,15 +16,17 @@ export default async function AdminDashboard() {
       {/* Header Glassmorphism */}
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#09090b]/70 border-b border-white/5 py-4 px-8">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
+          
+          {/* Logo agora é clicável e tem efeito hover */}
+          <Link href="/admin" className="flex items-center gap-3 hover:opacity-80 transition-all cursor-pointer">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
               <Activity className="w-4 h-4 text-white" />
             </div>
             <h1 className="text-lg font-semibold text-zinc-100 tracking-tight">Merkdo<span className="text-zinc-500 font-normal ml-1">Workspace</span></h1>
-          </div>
+          </Link>
 
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-zinc-500 font-mono text-xs border border-white/5 bg-white/[0.02] px-3 py-1.5 rounded-full">
+            <span className="text-zinc-500 font-mono text-xs border border-white/5 bg-white/[0.02] px-3 py-1.5 rounded-full hidden sm:block">
               {session?.user?.email ?? "Administrador"}
             </span>
             <Link

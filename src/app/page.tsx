@@ -16,14 +16,16 @@ export default async function HomePage() {
 
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#09090b]/70 border-b border-white/5 py-4 px-8 mb-8">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
+          
+          {/* Logo clicável redirecionando para a raiz / */}
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-all cursor-pointer">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
               <Store className="w-4 h-4 text-white" />
             </div>
             <div>
               <h1 className="text-lg font-semibold text-zinc-100 tracking-tight">Merkdo</h1>
             </div>
-          </div>
+          </Link>
           
           <div className="flex items-center gap-3">
             <Link
