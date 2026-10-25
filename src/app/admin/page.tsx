@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { Package, Building2, ShoppingBag, ArrowRight, LogOut, Activity, BarChart3 } from "lucide-react";
+import { Package, Building2, ShoppingBag, ArrowRight, LogOut, Activity, BarChart3, Store } from "lucide-react";
 
 export default async function AdminDashboard() {
   const session = await auth.api.getSession({
@@ -25,7 +25,15 @@ export default async function AdminDashboard() {
             <h1 className="text-lg font-semibold text-zinc-100 tracking-tight">Merkdo<span className="text-zinc-500 font-normal ml-1">Workspace</span></h1>
           </Link>
 
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-3 text-sm">
+            {/* Botão para voltar à Vitrine */}
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-3.5 py-2 rounded-xl transition-all shadow-sm"
+            >
+              <Store className="w-3.5 h-3.5" /> Ver Vitrine
+            </Link>
+
             <span className="text-zinc-500 font-mono text-xs border border-white/5 bg-white/[0.02] px-3 py-1.5 rounded-full hidden sm:block">
               {session?.user?.email ?? "Administrador"}
             </span>
