@@ -20,20 +20,21 @@ async function criarFornecedor(formData: FormData) {
   revalidatePath("/admin/fornecedores");
 }
 
-async function excluirFornecedor(id: string) {
+async function excluirFornecedor(formData: FormData) {
   "use server";
+  const id = formData.get("id") as string;
+  if (!id) return;
+
   try {
-    // Verifica se existem produtos associados antes de apagar
-    const produtosVinculados = await prisma.produto.count({
+    // Remove os produtos vinculados para evitar restrição de chave estrangeira
+    await prisma.produto.deleteMany({
       where: { fornecedorId: id },
     });
 
-    if (produtosVinculados > 0) {
-      console.error("Não é possível apagar fornecedor com produtos vinculados.");
-      return;
-    }
-
-    await prisma.fornecedor.delete({ where: { id } });
+    // Remove o fornecedor
+    await prisma.fornecedor.delete({ 
+      where: { id } 
+    });
   } catch (error) {
     console.error("Erro ao excluir fornecedor:", error);
   }
@@ -101,8 +102,9 @@ export default async function FornecedoresPage() {
                     {f.email && <div className="flex items-center gap-2 text-xs text-zinc-500"><Mail className="w-3.5 h-3.5" /> {f.email}</div>}
                   </div>
                 </div>
-                <form action={async () => { "use server"; await excluirFornecedor(f.id); }} className="mt-2 pt-4 border-t border-white/5">
-                  <button type="submit" className="flex items-center gap-1.5 text-xs text-zinc-600 hover:text-red-400 transition-colors">
+                <form action={excluirFornecedor} className="mt-2 pt-4 border-t border-white/5">
+                  <input type="hidden" name="id" value={f.id} />
+                  <button type="submit" className="flex items-center gap-1.5 text-xs text-zinc-600 hover:text-red-400 transition-colors cursor-pointer">
                     <Trash2 className="w-3.5 h-3.5" /> Remover
                   </button>
                 </form>
