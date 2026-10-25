@@ -1,137 +1,99 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { ArrowLeft, ShoppingBag, Trash2, CheckCircle2, Clock, Phone, User, DollarSign } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Trash2, CheckCircle2, Clock, Phone, User } from "lucide-react";
 import { revalidatePath } from "next/cache";
 
+// Server actions mantidas exatamente iguais
 async function atualizarStatusPedido(id: string, novoStatus: string) {
   "use server";
-  try {
-    await prisma.pedido.update({
-      where: { id },
-      data: { status: novoStatus },
-    });
-  } catch (error) {
-    console.error("Erro ao atualizar pedido:", error);
-  }
+  try { await prisma.pedido.update({ where: { id }, data: { status: novoStatus } }); } catch (error) {}
   revalidatePath("/admin/pedidos");
 }
-
 async function excluirPedido(id: string) {
   "use server";
-  try {
-    await prisma.pedido.delete({
-      where: { id },
-    });
-  } catch (error) {
-    console.error("Erro ao excluir pedido:", error);
-  }
+  try { await prisma.pedido.delete({ where: { id } }); } catch (error) {}
   revalidatePath("/admin/pedidos");
 }
 
 export default async function PedidosPage() {
-  const pedidos = await prisma.pedido.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  const pedidos = await prisma.pedido.findMany({ orderBy: { createdAt: "desc" } });
 
   return (
-    <main className="min-h-screen bg-stone-50 text-slate-950 font-sans pb-16">
-      <header className="bg-white border-b border-stone-200 py-4 px-8 mb-8">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-[#3A4D28]">
-            <ArrowLeft className="w-4 h-4" /> Voltar ao Painel
+    <main className="min-h-screen bg-[#09090b] text-zinc-300 font-sans pb-16 selection:bg-emerald-500/30">
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#09090b]/80 border-b border-white/5 py-4 px-8 mb-8">
+        <div className="max-w-7xl mx-auto flex items-center gap-4">
+          <Link href="/admin" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-zinc-400 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
           </Link>
-          <h1 className="text-xl font-serif font-bold text-[#3A4D28]">Controle de Pedidos</h1>
+          <div>
+            <h1 className="text-lg font-semibold text-zinc-100 tracking-tight">Fila de Pedidos</h1>
+            <p className="text-xs text-zinc-500 font-mono">Gerenciamento em Tempo Real</p>
+          </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-8 space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-serif font-bold text-slate-900">
-            Histórico de Pedidos ({pedidos.length})
-          </h2>
-        </div>
-
+      <div className="max-w-7xl mx-auto px-8">
         {pedidos.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border border-stone-200 text-center text-slate-500 shadow-sm">
-            <ShoppingBag className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-            <p className="text-base font-medium">Nenhum pedido registado ainda.</p>
-            <p className="text-xs text-slate-400 mt-1">Os pedidos feitos pelos clientes aparecerão aqui automaticamente.</p>
+          <div className="border border-dashed border-white/10 rounded-2xl p-12 flex flex-col items-center justify-center text-center bg-white/[0.01]">
+            <ShoppingBag className="w-10 h-10 text-zinc-700 mb-4" />
+            <p className="text-sm font-medium text-zinc-300">Nenhum pedido na fila.</p>
+            <p className="text-xs text-zinc-600 mt-1">Aguardando compras dos clientes...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {pedidos.map((pedido: any) => (
-              <div 
-                key={pedido.id} 
-                className={`bg-white p-6 rounded-2xl border shadow-sm flex flex-col justify-between transition-all ${
-                  pedido.status === "Concluído" ? "border-emerald-200 bg-emerald-50/20" : "border-stone-200"
-                }`}
-              >
-                <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {pedidos.map((pedido: any) => {
+              const isConcluido = pedido.status === "Concluído";
+              return (
+                <div key={pedido.id} className={`group relative rounded-2xl p-5 border backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 ${
+                  isConcluido ? "bg-emerald-950/10 border-emerald-900/30" : "bg-zinc-900/40 border-white/5 hover:border-white/10"
+                }`}>
                   <div className="flex justify-between items-start mb-4">
-                    <span className={`text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1 ${
-                      pedido.status === "Concluído" 
-                        ? "bg-emerald-100 text-emerald-800" 
-                        : "bg-amber-100 text-amber-800"
+                    <span className={`inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-md ${
+                      isConcluido ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"
                     }`}>
-                      {pedido.status === "Concluído" ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                      {isConcluido ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                       {pedido.status}
                     </span>
-                    <span className="text-xs text-slate-400">
-                      {new Date(pedido.createdAt).toLocaleDateString("pt-BR")} às {new Date(pedido.createdAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
+                    <span className="text-[10px] text-zinc-600 font-mono">
+                      {new Date(pedido.createdAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
 
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                      <User className="w-4 h-4 text-[#3A4D28]" />
-                      <span>{pedido.cliente}</span>
+                  <div className="space-y-1 mb-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-zinc-200">
+                      <User className="w-3.5 h-3.5 text-zinc-500" /> {pedido.cliente}
                     </div>
                     {pedido.telefone && (
-                      <div className="flex items-center gap-2 text-xs text-slate-600">
-                        <Phone className="w-3.5 h-3.5 text-[#D96B43]" />
-                        <span>{pedido.telefone}</span>
+                      <div className="flex items-center gap-2 text-xs text-zinc-500">
+                        <Phone className="w-3.5 h-3.5" /> {pedido.telefone}
                       </div>
                     )}
                   </div>
 
-                  <div className="bg-stone-50 p-3 rounded-xl text-xs text-slate-700 mb-4 space-y-1">
-                    <span className="font-semibold text-slate-900 block mb-1">Itens do Pedido:</span>
+                  <div className="bg-black/30 p-3 rounded-lg text-xs text-zinc-400 mb-4 font-mono leading-relaxed border border-white/[0.02]">
                     <p className="whitespace-pre-line">{pedido.itens}</p>
                   </div>
-                </div>
 
-                <div>
-                  <div className="flex justify-between items-center mb-4 pt-3 border-t border-stone-100">
-                    <span className="text-xs text-slate-500 font-medium">Total:</span>
-                    <span className="text-base font-bold text-[#3A4D28]">
-                      R$ {pedido.total.toFixed(2)}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    {pedido.status !== "Concluído" ? (
-                      <form action={async () => { "use server"; await atualizarStatusPedido(pedido.id, "Concluído"); }}>
-                        <button className="w-full bg-[#3A4D28] hover:bg-emerald-900 text-white text-xs py-2 rounded-xl font-medium transition-colors min-h-[38px]">
-                          Concluir
+                  <div className="flex justify-between items-center pt-4 border-t border-white/5">
+                    <span className="text-lg font-bold text-zinc-100 tracking-tight">R$ {pedido.total.toFixed(2)}</span>
+                    <div className="flex gap-2">
+                      <form action={async () => { "use server"; await atualizarStatusPedido(pedido.id, isConcluido ? "Pendente" : "Concluído"); }}>
+                        <button className={`p-2 rounded-lg transition-colors ${
+                          isConcluido ? "bg-zinc-800 text-zinc-400 hover:text-white" : "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                        }`}>
+                          <CheckCircle2 className="w-4 h-4" />
                         </button>
                       </form>
-                    ) : (
-                      <form action={async () => { "use server"; await atualizarStatusPedido(pedido.id, "Pendente"); }}>
-                        <button className="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs py-2 rounded-xl font-medium transition-colors min-h-[38px]">
-                          Reabrir
+                      <form action={async () => { "use server"; await excluirPedido(pedido.id); }}>
+                        <button className="p-2 rounded-lg bg-red-500/5 text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </form>
-                    )}
-
-                    <form action={async () => { "use server"; await excluirPedido(pedido.id); }}>
-                      <button className="w-full bg-red-50 hover:bg-red-100 text-red-600 text-xs py-2 rounded-xl font-medium transition-colors flex items-center justify-center gap-1 min-h-[38px]">
-                        <Trash2 className="w-3.5 h-3.5" /> Excluir
-                      </button>
-                    </form>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { ArrowLeft, Plus, Trash2, Building2, Phone, Mail, User } from "lucide-react";
+import { ArrowLeft, Building2, Plus, Trash2, Mail, Phone } from "lucide-react";
 import { revalidatePath } from "next/cache";
 
 async function criarFornecedor(formData: FormData) {
@@ -10,153 +10,93 @@ async function criarFornecedor(formData: FormData) {
   const telefone = formData.get("telefone") as string;
   const email = formData.get("email") as string;
 
-  if (!nome || !empresa) return;
+  if (!nome) return;
 
   try {
     await prisma.fornecedor.create({
       data: { nome, empresa, telefone, email },
     });
-  } catch (error) {
-    console.error("Erro ao criar fornecedor:", error);
-  }
-
+  } catch (error) {}
   revalidatePath("/admin/fornecedores");
 }
 
 async function excluirFornecedor(id: string) {
   "use server";
-  await prisma.fornecedor.delete({
-    where: { id },
-  });
-
+  try { await prisma.fornecedor.delete({ where: { id } }); } catch (error) {}
   revalidatePath("/admin/fornecedores");
 }
 
 export default async function FornecedoresPage() {
-  const fornecedores = await prisma.fornecedor.findMany({
-    orderBy: { empresa: "asc" },
-    include: { _count: { select: { produtos: true } } },
-  });
+  const fornecedores = await prisma.fornecedor.findMany({ orderBy: { nome: "asc" } });
 
   return (
-    <main className="min-h-screen bg-stone-50 text-slate-950 font-sans pb-16">
-      <header className="bg-white border-b border-stone-200 py-4 px-8 mb-8">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-[#3A4D28]">
-            <ArrowLeft className="w-4 h-4" /> Voltar ao Painel
+    <main className="min-h-screen bg-[#09090b] text-zinc-300 font-sans pb-16">
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#09090b]/80 border-b border-white/5 py-4 px-8 mb-8">
+        <div className="max-w-7xl mx-auto flex items-center gap-4">
+          <Link href="/admin" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-zinc-400 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
           </Link>
-          <h1 className="text-xl font-serif font-bold text-[#3A4D28]">Gestão de Fornecedores</h1>
+          <h1 className="text-lg font-semibold text-zinc-100 tracking-tight">Fornecedores & Parceiros</h1>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm h-fit">
-          <h2 className="text-lg font-serif font-bold mb-4 flex items-center gap-2 text-[#3A4D28]">
-            <Plus className="w-5 h-5 text-[#D96B43]" /> Novo Fornecedor
-          </h2>
+      <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* Painel Esquerdo: Formulário */}
+        <div className="lg:col-span-4">
+          <div className="bg-zinc-900/40 border border-white/5 p-6 rounded-2xl sticky top-28 shadow-2xl backdrop-blur-sm">
+            <h2 className="text-sm font-semibold text-zinc-100 mb-5 flex items-center gap-2">
+              <Plus className="w-4 h-4 text-emerald-400" /> Novo Parceiro
+            </h2>
 
-          <form action={criarFornecedor} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Nome do Responsável / Contato</label>
-              <input
-                name="nome"
-                required
-                placeholder="Ex: Jonas"
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
-              />
-            </div>
+            <form action={criarFornecedor} className="space-y-3">
+              <input name="empresa" required placeholder="Nome da Empresa" className="w-full px-3 py-2 bg-black/50 border border-white/5 rounded-lg text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all placeholder:text-zinc-600" />
+              <input name="nome" required placeholder="Nome do Contato" className="w-full px-3 py-2 bg-black/50 border border-white/5 rounded-lg text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all placeholder:text-zinc-600" />
+              
+              <div className="grid grid-cols-2 gap-3">
+                <input name="telefone" placeholder="Telefone" className="w-full px-3 py-2 bg-black/50 border border-white/5 rounded-lg text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-zinc-600" />
+                <input name="email" type="email" placeholder="E-mail" className="w-full px-3 py-2 bg-black/50 border border-white/5 rounded-lg text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-zinc-600" />
+              </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Nome da Empresa</label>
-              <input
-                name="empresa"
-                required
-                placeholder="Ex: Hidrolab"
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Telefone / WhatsApp</label>
-              <input
-                name="telefone"
-                placeholder="(28) 99932-5484"
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">E-mail</label>
-              <input
-                name="email"
-                type="email"
-                placeholder="teste8@gmail.com"
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-[#3A4D28]"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-[#3A4D28] text-white py-3 rounded-xl font-medium hover:bg-emerald-900 transition-all text-sm min-h-[44px]"
-            >
-              Cadastrar Fornecedor
-            </button>
-          </form>
+              <button type="submit" className="w-full mt-6 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-lg text-sm font-medium transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                Salvar Fornecedor
+              </button>
+            </form>
+          </div>
         </div>
 
-        <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-lg font-serif font-bold text-slate-900">Fornecedores Cadastrados ({fornecedores.length})</h2>
+        {/* Painel Direito: Listagem */}
+        <div className="lg:col-span-8">
+          <div className="flex justify-between items-end mb-6">
+            <h3 className="text-sm font-medium text-zinc-400">Lista Registrada ({fornecedores.length})</h3>
+          </div>
 
-          {fornecedores.length === 0 ? (
-            <div className="bg-white p-8 rounded-2xl border border-stone-200 text-center text-slate-500">
-              Nenhum fornecedor cadastrado ainda.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {fornecedores.map((f: any) => (
-                <div key={f.id} className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="p-2 bg-emerald-50 rounded-xl text-[#3A4D28]">
-                        <Building2 className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-serif font-bold text-slate-900 text-base">{f.empresa}</h3>
-                        <span className="text-xs text-slate-500">Resp: {f.nome} • {f._count.produtos} produto(s)</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5 text-xs text-slate-600 mb-4 bg-stone-50 p-3 rounded-xl">
-                      {f.telefone && (
-                        <div className="flex items-center gap-2">
-                          <Phone className="w-3.5 h-3.5 text-[#D96B43]" />
-                          <span>Tel: {f.telefone}</span>
-                        </div>
-                      )}
-                      {f.email && (
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-3.5 h-3.5 text-[#D96B43]" />
-                          <span>E-mail: {f.email}</span>
-                        </div>
-                      )}
-                    </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {fornecedores.map((f: any) => (
+              <div key={f.id} className="group flex flex-col justify-between bg-zinc-900/20 border border-white/5 p-5 rounded-2xl hover:bg-zinc-900/40 transition-all duration-300">
+                <div>
+                  <div className="w-10 h-10 rounded-lg bg-zinc-800/50 border border-white/5 flex items-center justify-center mb-4">
+                    <Building2 className="w-5 h-5 text-zinc-500" />
                   </div>
-
-                  <form
-                    action={async () => {
-                      "use server";
-                      await excluirFornecedor(f.id);
-                    }}
-                  >
-                    <button className="w-full flex items-center justify-center gap-1.5 text-xs text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 py-2 rounded-xl transition-colors font-medium min-h-[44px]">
-                      <Trash2 className="w-3.5 h-3.5" /> Remover Fornecedor
-                    </button>
-                  </form>
+                  <h4 className="text-base font-medium text-zinc-100 mb-1">{f.empresa}</h4>
+                  <p className="text-sm text-zinc-400 mb-4">{f.nome}</p>
+                  
+                  <div className="space-y-1.5 mb-4">
+                    {f.telefone && <div className="flex items-center gap-2 text-xs text-zinc-500 font-mono"><Phone className="w-3.5 h-3.5" /> {f.telefone}</div>}
+                    {f.email && <div className="flex items-center gap-2 text-xs text-zinc-500"><Mail className="w-3.5 h-3.5" /> {f.email}</div>}
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
+                
+                <form action={async () => { "use server"; await excluirFornecedor(f.id); }} className="mt-2 pt-4 border-t border-white/5">
+                  <button className="flex items-center gap-1.5 text-xs text-zinc-600 hover:text-red-400 transition-colors">
+                    <Trash2 className="w-3.5 h-3.5" /> Remover
+                  </button>
+                </form>
+              </div>
+            ))}
+          </div>
         </div>
+
       </div>
     </main>
   );
