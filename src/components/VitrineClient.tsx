@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Store, Search, ArrowRight, Package } from "lucide-react";
 import { criarPedidoCliente } from "@/actions/pedido";
 
@@ -12,6 +12,30 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
   const [telefone, setTelefone] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
+
+  // Lógica para Arrastar (Drag-to-Scroll) nas Categorias
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const onMouseLeave = () => setIsDragging(false);
+  const onMouseUp = () => setIsDragging(false);
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; // Velocidade do arraste
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
 
   const categorias = ["Todos", "Padaria", "Hortifrúti", "Mercearia", "Bebidas", "Limpeza"];
 
@@ -83,8 +107,8 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
       <div className="lg:col-span-8 space-y-8">
         
         {/* Busca e Filtros Modernos */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-          <div className="relative w-full sm:w-80 group">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center w-full">
+          <div className="relative w-full sm:w-80 shrink-0 group">
             <Search className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500 group-focus-within:text-emerald-400 transition-colors" />
             <input
               type="text"
@@ -95,7 +119,15 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
             />
           </div>
 
-          <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Container das Categorias com Drag-to-Scroll */}
+          <div
+            ref={scrollRef}
+            onMouseDown={onMouseDown}
+            onMouseLeave={onMouseLeave}
+            onMouseUp={onMouseUp}
+            onMouseMove={onMouseMove}
+            className="flex-1 min-w-0 w-full flex gap-2 overflow-x-auto pb-2 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] cursor-grab active:cursor-grabbing select-none"
+          >
             {categorias.map((cat) => (
               <button
                 key={cat}
@@ -152,7 +184,7 @@ export default function VitrineClient({ produtos }: { produtos: any[] }) {
         )}
       </div>
 
-      {/* Coluna Direita: Carrinho Sticky (Bento Style) */}
+      {/* Coluna Direita: Carrinho Sticky */}
       <div className="lg:col-span-4">
         <div className="bg-zinc-900/40 border border-white/5 rounded-3xl p-6 shadow-2xl backdrop-blur-md sticky top-28 flex flex-col max-h-[calc(100vh-8rem)]">
           <div className="flex justify-between items-center mb-6">
