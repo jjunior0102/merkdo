@@ -17,7 +17,7 @@ export default async function AdminDashboard() {
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#09090b]/70 border-b border-white/5 py-4 px-8">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           
-          {/* Logo agora é clicável e tem efeito hover */}
+          {/* Logo clicável redirecionando para o painel admin */}
           <Link href="/admin" className="flex items-center gap-3 hover:opacity-80 transition-all cursor-pointer">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
               <Activity className="w-4 h-4 text-white" />
